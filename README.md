@@ -1,2 +1,2 @@
 # mboss-web
-mboss: Design Durable Apps with DBOS - TanStack/Vite-Based React UI
+mboss: Design Durable Apps with DBOS - Next.js Web UI (mboss.dev)
