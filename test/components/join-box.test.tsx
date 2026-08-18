@@ -68,18 +68,28 @@ describe('JoinBox', () => {
   });
 
   it('shows the same card for a repeat signup', async () => {
-    // Nothing in the UI distinguishes a first
-    // signup from a repeat: the API answers both
-    // the same way, and saying "you were already on
-    // the list" would leak membership to anyone who
-    // guessed an address.
+    // A repeat is the same request with the same
+    // answer — the one thing that differs is the
+    // date, which stays the day they first joined.
+    // Nothing in the UI distinguishes the two:
+    // saying "you were already on the list" would
+    // leak membership to anyone who guessed an
+    // address, and a card that dated the row today
+    // would quietly rewrite it.
     fetchStub = stubFetch();
-    fetchStub.reply(row);
-    render(<JoinBox />);
+    fetchStub.reply({ ...row, subscribedAt: '2026-03-02T09:14:00.000Z' });
+    const { container } = render(<JoinBox />);
 
     await join();
 
     expect(screen.getByText("You're on the list.")).toBeVisible();
+    expect(
+      screen.getByText('subscribed mar 02 · pat@stmarks.org'),
+    ).toBeVisible();
+
+    expect((container.textContent ?? '').toLowerCase()).not.toContain(
+      'already',
+    );
   });
 
   it('shows no queue position anywhere', async () => {

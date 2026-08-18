@@ -70,21 +70,26 @@ describe('POST /api/waitlist', () => {
     await expect(response.json()).resolves.toEqual(row);
   });
 
-  it('answers a previously bounced address with the ordinary body', async () => {
-    // Signing up again is how someone leaves the
-    // bounced state, so there is no branch here at
-    // all — the API's answer is the answer.
-    fetchStub = stubFetch();
-    fetchStub.reply({ ...row, status: 'subscribed' });
-    const { POST } = await import('@/app/api/waitlist/route');
+  it.each(['subscribed', 'unsubscribed', 'bounced'])(
+    'passes a %s row through with no branch of its own',
+    async (status) => {
+      // Signing up again is how someone leaves the
+      // bounced state, and it is the API that
+      // re-subscribes them — proved against a real
+      // bounced row in mboss-nodejs-api's waitlist
+      // tests, the only layer where one can exist.
+      // All this route owes is to have no opinion
+      // about the status it is handed.
+      fetchStub = stubFetch();
+      fetchStub.reply({ ...row, status });
+      const { POST } = await import('@/app/api/waitlist/route');
 
-    const response = await POST(signup('pat@stmarks.org'));
+      const response = await POST(signup('pat@stmarks.org'));
 
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toMatchObject({
-      status: 'subscribed',
-    });
-  });
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toEqual({ ...row, status });
+    },
+  );
 
   it('rejects a malformed address without calling the API', async () => {
     fetchStub = stubFetch();
