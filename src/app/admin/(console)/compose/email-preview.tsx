@@ -58,7 +58,7 @@ export function EmailPreview({
         </div>
       </div>
       <p className="mt-2 text-[10px] text-neutral-600">
-        Lands in the inbox looking like this.
+        Lands in inboxes as an email.
       </p>
     </div>
   );
