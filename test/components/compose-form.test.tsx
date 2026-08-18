@@ -84,6 +84,31 @@ describe('ComposeForm', () => {
     });
   });
 
+  it('does not offer a second send after a failed broadcast', async () => {
+    // A lost response is the ordinary failure here,
+    // and by then the API has committed the audience
+    // and enqueued the workflow — the send is under
+    // way. Claiming nothing was sent and leaving the
+    // button live is how 201 people get the update
+    // twice.
+    renderForm();
+    fetchStub.reply({ error: 'nope' }, 502);
+
+    await compose('Progress update #3', 'The canvas is alive.');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Send to 201 subscribers' }),
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'We could not confirm that send. It may already be on its way, so ' +
+        'this page will not send it again.',
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Send to 201 subscribers' }),
+    ).toBeNull();
+    expect(fetchStub.calls).toHaveLength(1);
+  });
+
   it('sends a test through the route that knows who is signed in', async () => {
     // The recipient is never in the body: the route
     // fills it from the session.

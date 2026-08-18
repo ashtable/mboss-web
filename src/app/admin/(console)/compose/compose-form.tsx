@@ -12,9 +12,13 @@ import { EmailPreview } from './email-preview';
  * re-rendered on every keystroke.
  *
  * Sending is immediate; there is no scheduling. Once
- * a broadcast is away the send button is gone,
- * because a second click would create a second
- * broadcast and mail everyone twice.
+ * a broadcast has been asked for the send button is
+ * gone, because a second click would create a second
+ * broadcast and mail everyone twice. That holds when
+ * the request fails too: by the time a response can
+ * go missing the API has committed the audience and
+ * enqueued the send, so a failure here means the
+ * send is unconfirmed, not that it did not happen.
  *
  * The teaser is a URL rather than an upload. There is
  * no object store behind this product, so an upload
@@ -37,6 +41,7 @@ export function ComposeForm({
   const [teaserImageUrl, setTeaserImageUrl] = useState('');
   const [pending, setPending] = useState(false);
   const [sent, setSent] = useState<Sent | null>(null);
+  const [asked, setAsked] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const recipients = counts.subscribed + (includePaused ? counts.paused : 0);
@@ -50,7 +55,12 @@ export function ComposeForm({
     };
   }
 
-  async function send(path: string, body: unknown, message: Sent) {
+  async function send(
+    path: string,
+    body: unknown,
+    message: Sent,
+    failure: string,
+  ) {
     setPending(true);
     setError(null);
     try {
@@ -60,12 +70,12 @@ export function ComposeForm({
         body: JSON.stringify(body),
       });
       if (!response.ok) {
-        setError('That did not go through. Nothing was sent.');
+        setError(failure);
         return;
       }
       setSent(message);
     } catch {
-      setError('That did not go through. Nothing was sent.');
+      setError(failure);
     } finally {
       setPending(false);
     }
@@ -73,6 +83,7 @@ export function ComposeForm({
 
   function sendBroadcast(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setAsked(true);
     const audience: SubscriberStatus[] = includePaused
       ? ['subscribed', 'paused']
       : ['subscribed'];
@@ -83,14 +94,21 @@ export function ComposeForm({
         broadcast: true,
         message: `Sending to ${recipients} ${plural(recipients)}.`,
       },
+      'We could not confirm that send. It may already be on its way, so ' +
+        'this page will not send it again.',
     );
   }
 
   function sendTest() {
-    void send('/api/admin/broadcasts/test', draft(), {
-      broadcast: false,
-      message: `Test sent to ${actor}.`,
-    });
+    void send(
+      '/api/admin/broadcasts/test',
+      draft(),
+      { broadcast: false, message: `Test sent to ${actor}.` },
+      // The test goes to the admin and nobody else,
+      // so their own inbox settles whether it
+      // arrived.
+      'That did not go through. Send the test again if it does not arrive.',
+    );
   }
 
   return (
@@ -168,7 +186,7 @@ export function ComposeForm({
           >
             Send test to me
           </button>
-          {sent?.broadcast !== true && (
+          {!asked && (
             <button
               type="submit"
               className="btn btn-primary"
