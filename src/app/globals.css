@@ -431,9 +431,12 @@
     font-weight: var(--font-heading-weight);
     font-size: 18px;
     margin-right: auto;
+    color: var(--color-text);
   }
+  /* Section links sit back so the current one, and
+     the brand, can come forward. */
   .nav a {
-    color: inherit;
+    color: color-mix(in srgb, var(--color-text) 62%, transparent);
     text-decoration: none;
     font-size: 14px;
   }
