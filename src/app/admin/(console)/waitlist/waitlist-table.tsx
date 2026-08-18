@@ -7,11 +7,11 @@ import type { AdminWaitlistRow } from '@mboss/zod';
  * Everyone on the list, in the machine face, with the
  * derived note as the last column.
  *
- * The status cell is the bare word. The mockup pairs
- * a paused row with the date it was paused, but no
- * date for that is on the wire — the row carries only
- * when someone joined — so the cell says what is
- * known rather than what would look complete.
+ * The status cell is the bare word. A row carries
+ * only the date someone joined, so there is no date
+ * to pair a pause or a bounce with, and the cell
+ * says what is known rather than what would look
+ * complete.
  */
 
 const LEAVING = { color: 'oklch(45% .09 30)' };

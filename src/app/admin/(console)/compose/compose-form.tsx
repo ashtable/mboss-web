@@ -11,10 +11,10 @@ import { EmailPreview } from './email-preview';
  * on the left and the email itself on the right,
  * re-rendered on every keystroke.
  *
- * Sending is immediate — there is no scheduling here,
- * as drawn — and once a broadcast is away the send
- * button is gone, because a second click would create
- * a second broadcast and mail everyone twice.
+ * Sending is immediate; there is no scheduling. Once
+ * a broadcast is away the send button is gone,
+ * because a second click would create a second
+ * broadcast and mail everyone twice.
  *
  * The teaser is a URL rather than an upload. There is
  * no object store behind this product, so an upload
