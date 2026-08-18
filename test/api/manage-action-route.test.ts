@@ -1,12 +1,12 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
+import { seedEnv } from '../helpers/env.js';
 import { stubFetch, type FetchStub } from '../helpers/fetch-stub.js';
 
 const TOKEN = 'dev-web-service-token';
 
 beforeAll(() => {
-  process.env.API_BASE_URL = 'http://api:3001';
-  process.env.WEB_SERVICE_TOKEN = TOKEN;
+  seedEnv();
 });
 
 let fetchStub: FetchStub;

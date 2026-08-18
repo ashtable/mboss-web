@@ -12,10 +12,36 @@ const baseUrlSchema = z
   .min(1)
   .transform((value) => value.replace(/\/+$/, ''));
 
+/**
+ * The admin sign-in has to be pinned to one Entra
+ * tenant. Entra does not verify the email claim
+ * across tenants, so a `common` or `organizations`
+ * issuer plus a domain check would admit accounts
+ * an attacker controls — and the misconfiguration
+ * would look exactly like a working deploy. A
+ * tenant GUID in the path is what makes the check
+ * real, so nothing else parses.
+ */
+const issuerSchema = z
+  .url()
+  .refine(
+    (value) =>
+      /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(
+        new URL(value).pathname.split('/').filter(Boolean)[0] ?? '',
+      ),
+    'must name one tenant GUID, never common or organizations',
+  );
+
 const EnvSchema = z.object({
   API_BASE_URL: baseUrlSchema,
   WEB_SERVICE_TOKEN: z.string().min(1),
   NEXT_PUBLIC_SITE_URL: baseUrlSchema.default('https://mboss.dev'),
+
+  AUTH_SECRET: z.string().min(1),
+  AUTH_MICROSOFT_ENTRA_ID_ID: z.string().min(1),
+  AUTH_MICROSOFT_ENTRA_ID_SECRET: z.string().min(1),
+  AUTH_MICROSOFT_ENTRA_ID_ISSUER: issuerSchema,
+  ADMIN_ALLOWED_DOMAIN: z.string().min(1).default('autoretryai.com'),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
