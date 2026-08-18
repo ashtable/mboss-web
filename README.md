@@ -52,3 +52,10 @@ The browser-driven suite is not here. It lives in `mboss-e2e-tests` and
 runs against the superproject's compose stack, because what it proves —
 that the design tokens resolve, that the copy is on the page, that a
 signup reaches Postgres — needs the whole stack up.
+
+That suite signs in to the admin console by minting an Auth.js session
+cookie itself, so it pins `next-auth` to the exact version resolved here
+(`5.0.0-beta.32`). The cookie is an encrypted JWE whose format and salt
+belong to the library, and a beta bump on one side alone breaks the
+minter with nothing to say why — so bump both together until the harness
+nests this repo and reads the version from it.
