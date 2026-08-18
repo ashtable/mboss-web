@@ -1,4 +1,5 @@
 import { auth } from '@/auth';
+import { sessionAddress } from '@/auth/policy';
 import { callApi } from '@/lib/api-client';
 
 /**
@@ -17,8 +18,7 @@ import { callApi } from '@/lib/api-client';
 
 /** The signed-in admin's address, or null. */
 export async function adminActor(): Promise<string | null> {
-  const session = await auth();
-  return session?.user?.email ?? null;
+  return sessionAddress(await auth());
 }
 
 export function unauthorized(): Response {

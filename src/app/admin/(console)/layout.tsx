@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
+import { sessionAddress } from '@/auth/policy';
 
 import { AdminNav } from './admin-nav';
 
@@ -25,9 +26,8 @@ export default async function ConsoleLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-  const email = session?.user?.email;
-  if (email === undefined || email === null) redirect('/admin');
+  const email = sessionAddress(await auth());
+  if (email === null) redirect('/admin');
 
   return (
     <>

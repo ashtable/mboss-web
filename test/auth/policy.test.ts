@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { adminRedirect, canSignIn, tenantFromIssuer } from '@/auth/policy';
+import {
+  adminRedirect,
+  canSignIn,
+  sessionAddress,
+  tenantFromIssuer,
+} from '@/auth/policy';
 import { TENANT_ID } from '../helpers/env.js';
 
 const policy = { tenantId: TENANT_ID, allowedDomain: 'autoretryai.com' };
@@ -60,6 +65,24 @@ describe('canSignIn', () => {
     expect(canSignIn({ tid: TENANT_ID, email }, policy)).toBe(false);
   });
 
+  it('is case-insensitive about the tenant and the domain', () => {
+    // The portal hands the GUID out in mixed case,
+    // the domain is typed by hand, and Entra sends
+    // `tid` lowercase. Comparing case-sensitively
+    // turns an ordinary paste into AccessDenied for
+    // every account in the tenant, with nothing
+    // anywhere naming the cause.
+    expect(
+      canSignIn(
+        { tid: TENANT_ID.toUpperCase(), email: 'ash@autoretryai.com' },
+        {
+          tenantId: TENANT_ID.toUpperCase(),
+          allowedDomain: 'AutoRetryAI.com',
+        },
+      ),
+    ).toBe(true);
+  });
+
   it('rejects a profile with no tenant claim', () => {
     expect(canSignIn({ email: 'ash@autoretryai.com' }, policy)).toBe(false);
   });
@@ -84,6 +107,33 @@ describe('canSignIn', () => {
   it('rejects anything that is not a profile object', () => {
     expect(canSignIn(null, policy)).toBe(false);
     expect(canSignIn('ash@autoretryai.com', policy)).toBe(false);
+  });
+});
+
+describe('sessionAddress', () => {
+  it('reads the address off a session', () => {
+    expect(
+      sessionAddress({
+        user: { email: 'ash@autoretryai.com' },
+        expires: '2026-09-17T00:00:00.000Z',
+      }),
+    ).toBe('ash@autoretryai.com');
+  });
+
+  it.each([
+    ['no session', null],
+    ['a session with no user', { expires: '2026-09-17T00:00:00.000Z' }],
+    [
+      'a session whose user has no address',
+      { user: {}, expires: '2026-09-17T00:00:00.000Z' },
+    ],
+  ])('answers null for %s', (_name, session) => {
+    // Every gate under /admin has to give the same
+    // answer here. The sign-in page treating a
+    // session as signed in while the console treats
+    // the same session as signed out is a redirect
+    // loop, not a stricter check.
+    expect(sessionAddress(session)).toBeNull();
   });
 });
 

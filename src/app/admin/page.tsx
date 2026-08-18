@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
+import { sessionAddress } from '@/auth/policy';
 
 import { SignInButton } from './sign-in-button';
 
@@ -18,8 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminSignInPage() {
-  const session = await auth();
-  if (session !== null) redirect('/admin/waitlist');
+  if (sessionAddress(await auth()) !== null) redirect('/admin/waitlist');
 
   return (
     <main className="grid place-items-center px-6 py-[44px] pb-[52px]">

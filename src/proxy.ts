@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { auth } from '@/auth';
-import { adminRedirect } from '@/auth/policy';
+import { adminRedirect, sessionAddress } from '@/auth/policy';
 
 /**
  * Next 16 calls this file `proxy.ts`; the old
@@ -17,7 +17,8 @@ import { adminRedirect } from '@/auth/policy';
  * directly.
  */
 export const proxy = auth((request) => {
-  const target = adminRedirect(request.nextUrl.pathname, request.auth !== null);
+  const signedIn = sessionAddress(request.auth) !== null;
+  const target = adminRedirect(request.nextUrl.pathname, signedIn);
   if (target === null) return;
   return NextResponse.redirect(new URL(target, request.nextUrl));
 });

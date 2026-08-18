@@ -1,3 +1,5 @@
+import type { Session } from 'next-auth';
+
 import { serverEnv } from '@/env';
 
 /**
@@ -45,19 +47,66 @@ export function adminPolicy(): AdminPolicy {
  * substring test.
  */
 export function canSignIn(profile: unknown, policy: AdminPolicy): boolean {
-  if (typeof profile !== 'object' || profile === null) return false;
+  const claims = claimsOf(profile);
+  if (claims === null) return false;
 
-  const claims = profile as Record<string, unknown>;
-  if (claims.tid !== policy.tenantId) return false;
+  // Both sides are folded here rather than where the
+  // policy is built, so no caller can hand this
+  // function a policy that is right except for its
+  // casing. Entra sends `tid` lowercase, while the
+  // portal hands the GUID out in mixed case and the
+  // domain is typed by hand — and a case-sensitive
+  // comparison fails closed, which looks exactly
+  // like a rejected account rather than a typo.
+  const { tid } = claims;
+  if (typeof tid !== 'string') return false;
+  if (tid.toLowerCase() !== policy.tenantId.toLowerCase()) return false;
 
-  // Entra sends `email` by default only for guest
-  // accounts; a managed user needs it requested as an
-  // optional claim on the app registration. Until it
-  // is, `preferred_username` is what arrives.
+  const address = addressOf(profile);
+  if (address === null) return false;
+
+  const domain = policy.allowedDomain.toLowerCase();
+  return address.toLowerCase().endsWith(`@${domain}`);
+}
+
+/**
+ * The address to treat as this account's own, or
+ * null.
+ *
+ * Entra sends `email` by default only for guest
+ * accounts; a managed user needs it requested as an
+ * optional claim on the app registration, and until
+ * it is, `preferred_username` is what arrives. Both
+ * the sign-in check and the session are built from
+ * this one rule, so the address that was admitted is
+ * always the address that is carried.
+ */
+export function addressOf(profile: unknown): string | null {
+  const claims = claimsOf(profile);
+  if (claims === null) return null;
+
   const address = claims.email ?? claims.preferred_username;
-  if (typeof address !== 'string') return false;
+  return typeof address === 'string' ? address : null;
+}
 
-  return address.toLowerCase().endsWith(`@${policy.allowedDomain}`);
+function claimsOf(profile: unknown): Record<string, unknown> | null {
+  if (typeof profile !== 'object' || profile === null) return null;
+  return profile as Record<string, unknown>;
+}
+
+/**
+ * The address a session belongs to, or null when it
+ * has none.
+ *
+ * Every gate under /admin asks this one question —
+ * the sign-in page to decide whether to step aside,
+ * the console and the admin proxies to decide whether
+ * to let a request past. Two gates that answered it
+ * differently would bounce a visitor between them
+ * until the browser gave up.
+ */
+export function sessionAddress(session: Session | null): string | null {
+  return session?.user?.email ?? null;
 }
 
 /**
