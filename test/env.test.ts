@@ -25,6 +25,7 @@ describe('readEnv', () => {
     // learn the rest.
     const message = messageFor({});
     expect(message).toContain('API_BASE_URL');
+    expect(message).toContain('AUTH_URL');
     expect(message).toContain('WEB_SERVICE_TOKEN');
     expect(message).toContain('AUTH_SECRET');
     expect(message).toContain('AUTH_MICROSOFT_ENTRA_ID_ID');
@@ -47,6 +48,19 @@ describe('readEnv', () => {
     expect(readEnv(COMPLETE_ENV).NEXT_PUBLIC_SITE_URL).toBe(
       'https://mboss.dev',
     );
+  });
+
+  it('requires AUTH_URL, which is what makes the host trusted', () => {
+    // Auth.js decides `trustHost` for itself, and in
+    // production it is false unless AUTH_URL,
+    // AUTH_TRUST_HOST, VERCEL or CF_PAGES is set —
+    // whereupon every /api/auth request answers
+    // UntrustedHost and nobody can sign in. AUTH_URL
+    // also pins the callback origin behind a
+    // platform proxy instead of trusting the Host
+    // header.
+    const message = messageFor({ ...COMPLETE_ENV, AUTH_URL: undefined });
+    expect(message).toContain('AUTH_URL');
   });
 
   it('defaults ADMIN_ALLOWED_DOMAIN', () => {
@@ -73,6 +87,38 @@ describe('readEnv', () => {
     expect(readEnv(COMPLETE_ENV).AUTH_MICROSOFT_ENTRA_ID_ISSUER).toContain(
       TENANT_ID,
     );
+  });
+});
+
+describe('AUTH_SECRET in production', () => {
+  const production = { ...COMPLETE_ENV, NODE_ENV: 'production' };
+
+  it('refuses the published development default', () => {
+    // The default is committed here and in the e2e
+    // helper that mints an admin session cookie with
+    // it, so a deploy that inherits it hands the
+    // console to anyone who has read the repository.
+    // It works silently, which is why it has to fail
+    // at boot.
+    expect(messageFor(production)).toContain('AUTH_SECRET');
+  });
+
+  it('refuses a secret too short to be worth guessing at', () => {
+    expect(messageFor({ ...production, AUTH_SECRET: 'hunter2' })).toContain(
+      'AUTH_SECRET',
+    );
+  });
+
+  it('accepts a generated secret', () => {
+    expect(
+      readEnv({ ...production, AUTH_SECRET: 'a'.repeat(44) }).AUTH_SECRET,
+    ).toBe('a'.repeat(44));
+  });
+
+  it('leaves development with its readable default', () => {
+    // The whole point of the compose defaults is that
+    // a clean checkout comes up without a .env.
+    expect(readEnv(COMPLETE_ENV).AUTH_SECRET).toBe('dev-auth-secret');
   });
 });
 

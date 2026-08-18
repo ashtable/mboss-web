@@ -10,6 +10,7 @@ export const TENANT_ID = '1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d';
 export const COMPLETE_ENV = {
   API_BASE_URL: 'http://api:3001',
   WEB_SERVICE_TOKEN: 'dev-web-service-token',
+  AUTH_URL: 'http://localhost:3000/api/auth',
   AUTH_SECRET: 'dev-auth-secret',
   AUTH_MICROSOFT_ENTRA_ID_ID: 'dev-client-id',
   AUTH_MICROSOFT_ENTRA_ID_SECRET: 'dev-client-secret',

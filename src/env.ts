@@ -32,23 +32,66 @@ const issuerSchema = z
     'must name one tenant GUID, never common or organizations',
   );
 
-const EnvSchema = z.object({
-  API_BASE_URL: baseUrlSchema,
-  WEB_SERVICE_TOKEN: z.string().min(1),
-  NEXT_PUBLIC_SITE_URL: baseUrlSchema.default('https://mboss.dev'),
+/**
+ * The development secret is committed here, in
+ * .env.example, and in the e2e helper that mints an
+ * admin session cookie with it. A deploy that
+ * inherits it hands the console to anyone who has
+ * read this repository — and unlike the Entra
+ * placeholders, which fail at Microsoft the moment
+ * the button is clicked, it works. Boot is the only
+ * place left to catch it.
+ */
+const DEV_AUTH_SECRET = 'dev-auth-secret';
 
-  AUTH_SECRET: z.string().min(1),
-  AUTH_MICROSOFT_ENTRA_ID_ID: z.string().min(1),
-  AUTH_MICROSOFT_ENTRA_ID_SECRET: z.string().min(1),
-  AUTH_MICROSOFT_ENTRA_ID_ISSUER: issuerSchema,
-  ADMIN_ALLOWED_DOMAIN: z.string().min(1).default('autoretryai.com'),
+function productionSecretProblem(secret: string): string | null {
+  if (secret === DEV_AUTH_SECRET) {
+    return 'must not be the development default in production';
+  }
+  if (secret.length < 32) {
+    return 'must be at least 32 characters in production';
+  }
+  return null;
+}
 
-  // The SendGrid event webhook is the one place
-  // this app crosses into the API's internal
-  // surface, so it holds both service tokens.
-  SENDGRID_WEBHOOK_PUBLIC_KEY: z.string().min(1),
-  INTERNAL_API_TOKEN: z.string().min(1),
-});
+const EnvSchema = z
+  .object({
+    NODE_ENV: z.string().optional(),
+
+    API_BASE_URL: baseUrlSchema,
+    WEB_SERVICE_TOKEN: z.string().min(1),
+    NEXT_PUBLIC_SITE_URL: baseUrlSchema.default('https://mboss.dev'),
+
+    // Auth.js works out `trustHost` for itself, and
+    // in production it is false unless one of a
+    // fixed list of variables is set — whereupon
+    // every /api/auth request answers UntrustedHost
+    // and no admin can sign in. This deploy is not
+    // on Vercel or Cloudflare, so AUTH_URL is what
+    // sets it, and it pins the callback origin
+    // behind a platform proxy rather than trusting
+    // the Host header. Its path is the auth base
+    // path, which on Next is /api/auth.
+    AUTH_URL: z.url(),
+    AUTH_SECRET: z.string().min(1),
+    AUTH_MICROSOFT_ENTRA_ID_ID: z.string().min(1),
+    AUTH_MICROSOFT_ENTRA_ID_SECRET: z.string().min(1),
+    AUTH_MICROSOFT_ENTRA_ID_ISSUER: issuerSchema,
+    ADMIN_ALLOWED_DOMAIN: z.string().min(1).default('autoretryai.com'),
+
+    // The SendGrid event webhook is the one place
+    // this app crosses into the API's internal
+    // surface, so it holds both service tokens.
+    SENDGRID_WEBHOOK_PUBLIC_KEY: z.string().min(1),
+    INTERNAL_API_TOKEN: z.string().min(1),
+  })
+  .superRefine((env, ctx) => {
+    if (env.NODE_ENV !== 'production') return;
+
+    const problem = productionSecretProblem(env.AUTH_SECRET);
+    if (problem === null) return;
+    ctx.addIssue({ code: 'custom', path: ['AUTH_SECRET'], message: problem });
+  });
 
 export type Env = z.infer<typeof EnvSchema>;
 
