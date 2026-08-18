@@ -199,6 +199,19 @@
     right: -6px;
   }
 
+  /* The plotting grid a workflow is drawn on. It
+     is the product's most recognisable surface, so
+     the marketing art and the console share one
+     definition of it. */
+  .canvas-grid {
+    background-color: var(--color-bg);
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--color-text) 10%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 18px 18px;
+  }
+
   /* — text — */
 
   .text-muted {
@@ -211,6 +224,7 @@
      since the same label reads as accent on the
      public pages and as neutral in a form. */
   .eyebrow {
+    margin: 0;
     font-family: var(--font-heading);
     font-weight: var(--font-heading-weight);
     font-size: 10.5px;
@@ -334,6 +348,12 @@
     padding: var(--space-3);
     border-radius: var(--radius-md);
     background: var(--color-surface);
+  }
+  /* A card spaces its children with the system's
+     gap, so the prose margin a paragraph or heading
+     carries elsewhere would double it. */
+  .card > :is(p, h1, h2, h3, h4, h5, h6) {
+    margin-bottom: 0;
   }
   .card-kicker {
     font-size: 10px;
