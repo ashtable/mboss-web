@@ -14,6 +14,8 @@ export const COMPLETE_ENV = {
   AUTH_MICROSOFT_ENTRA_ID_ID: 'dev-client-id',
   AUTH_MICROSOFT_ENTRA_ID_SECRET: 'dev-client-secret',
   AUTH_MICROSOFT_ENTRA_ID_ISSUER: `https://login.microsoftonline.com/${TENANT_ID}/v2.0`,
+  SENDGRID_WEBHOOK_PUBLIC_KEY: 'dev-webhook-public-key',
+  INTERNAL_API_TOKEN: 'dev-internal-api-token',
 };
 
 export function seedEnv(overrides: Record<string, string> = {}): void {

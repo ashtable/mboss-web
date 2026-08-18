@@ -12,10 +12,33 @@ export async function callApi(
   init?: RequestInit,
 ): Promise<Response> {
   const env = serverEnv();
-  const headers = new Headers(init?.headers);
-  headers.set('authorization', `Bearer ${env.WEB_SERVICE_TOKEN}`);
+  return call(path, init, env.WEB_SERVICE_TOKEN);
+}
 
-  return fetch(`${env.API_BASE_URL}${path}`, {
+/**
+ * The API's internal surface, which takes the other
+ * token. Only the SendGrid webhook forwards there,
+ * and the two tokens are one typo apart, so the
+ * difference is a named function rather than an
+ * argument someone could pass the wrong value to.
+ */
+export async function callInternalApi(
+  path: string,
+  init?: RequestInit,
+): Promise<Response> {
+  const env = serverEnv();
+  return call(path, init, env.INTERNAL_API_TOKEN);
+}
+
+async function call(
+  path: string,
+  init: RequestInit | undefined,
+  token: string,
+): Promise<Response> {
+  const headers = new Headers(init?.headers);
+  headers.set('authorization', `Bearer ${token}`);
+
+  return fetch(`${serverEnv().API_BASE_URL}${path}`, {
     ...init,
     headers,
     // The API is a sibling container on a private
