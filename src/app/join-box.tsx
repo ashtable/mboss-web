@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
 import {
   WaitlistSignupResponseSchema,
@@ -115,6 +115,21 @@ export function JoinBox() {
 }
 
 function SuccessCard({ row }: { row: WaitlistSignupResponse }) {
+  /**
+   * This card replaces the form the visitor was in,
+   * so focus would otherwise fall to the body: a
+   * screen reader would announce nothing and the next
+   * Tab would restart at the top of the page. Moving
+   * focus to the heading fixes both. `tabIndex={-1}`
+   * makes the heading focusable in code without
+   * adding it to the tab order, and the accent ring
+   * is painted only when focus arrived by keyboard.
+   */
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    heading.current?.focus();
+  }, []);
+
   return (
     <Blueprint className="card mt-[22px] max-w-[400px] bg-white px-[26px] py-[22px] text-center">
       <span
@@ -123,7 +138,9 @@ function SuccessCard({ row }: { row: WaitlistSignupResponse }) {
       >
         ✓
       </span>
-      <h2 className="text-[26px]">You&apos;re on the list.</h2>
+      <h2 ref={heading} tabIndex={-1} className="text-[26px]">
+        You&apos;re on the list.
+      </h2>
       <div className="mono text-[11px] text-neutral-600">
         subscribed {formatSubscribedAt(row.subscribedAt)} · {row.email}
       </div>

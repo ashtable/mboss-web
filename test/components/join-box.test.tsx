@@ -106,6 +106,22 @@ describe('JoinBox', () => {
     expect(screen.queryByPlaceholderText('you@company.com')).toBeNull();
   });
 
+  it('moves focus to the success card heading', async () => {
+    // The form the visitor was using is gone from the
+    // DOM. Without this, focus falls to the body: a
+    // screen reader announces nothing and the next Tab
+    // restarts at the top of the page.
+    fetchStub = stubFetch();
+    fetchStub.reply(row);
+    render(<JoinBox />);
+
+    await join();
+
+    expect(
+      screen.getByRole('heading', { name: "You're on the list." }),
+    ).toHaveFocus();
+  });
+
   it('shows the same card for a repeat signup', async () => {
     // A repeat is the same request with the same
     // answer — the one thing that differs is the
