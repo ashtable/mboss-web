@@ -419,10 +419,20 @@
 
   /* — navigation — */
 
+  /* The row wraps because the repo link is a single
+     unbreakable ~210px word and the nav is the first
+     thing on the page: unwrapped, it pushes the whole
+     document sideways on a phone. Wrapping keeps
+     every label rather than hiding one below a
+     breakpoint. The row gap is tighter than the
+     column gap so a wrapped line reads as the same
+     nav rather than a second one. */
   .nav {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-4);
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
     padding: var(--space-3) var(--space-4);
     border-bottom: none;
   }

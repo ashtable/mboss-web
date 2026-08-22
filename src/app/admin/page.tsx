@@ -23,7 +23,7 @@ export default async function AdminSignInPage() {
 
   return (
     <main className="grid place-items-center px-6 py-[44px] pb-[52px]">
-      <div className="w-[400px] max-w-full border border-divider bg-white px-[26px] py-[22px]">
+      <div className="w-full max-w-[400px] border border-divider bg-white px-[26px] py-[22px]">
         <h2 className="text-[24px]">Admin sign-in</h2>
         <p className="mt-1 text-[12px] text-neutral-600">
           autoretryai.com staff only — for the waitlist console.

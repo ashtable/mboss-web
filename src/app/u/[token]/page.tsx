@@ -57,7 +57,7 @@ export default async function ManagePage({
  */
 function LinkError() {
   return (
-    <div className="w-[430px] max-w-full border border-divider bg-white px-[26px] py-[22px] text-center">
+    <div className="w-full max-w-[430px] border border-divider bg-white px-[26px] py-[22px] text-center">
       <h2 className="text-[26px]">That link doesn&apos;t work.</h2>
       <p className="mt-2 text-[12.5px]/[1.6] text-neutral-600">
         Manage links are signed, and they can expire or be replaced. Open the

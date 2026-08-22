@@ -22,6 +22,12 @@ import { formatSubscribedAt } from '@/lib/format';
  * it is a verdict from a mail server rather than a
  * decision they made, and resuming is the way out of
  * it.
+ *
+ * The width is a maximum rather than a fixed size.
+ * Most people open this from an email on a phone,
+ * and a fixed width inside the centring grid makes
+ * the track as wide as the card and scrolls the
+ * whole document sideways.
  */
 
 const BODY =
@@ -68,7 +74,7 @@ export function ManageCard({
   }
 
   return (
-    <div className="w-[430px] max-w-full border border-divider bg-white px-[26px] py-[22px] text-center">
+    <div className="w-full max-w-[430px] border border-divider bg-white px-[26px] py-[22px] text-center">
       <span className="tag tag-outline px-[9px] py-[2px] text-[10px]">
         status: {status}
       </span>
