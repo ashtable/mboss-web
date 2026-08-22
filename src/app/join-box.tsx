@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 
 import {
   WaitlistSignupResponseSchema,
@@ -36,6 +36,20 @@ export function JoinBox() {
   const [joined, setJoined] = useState<WaitlistSignupResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  /**
+   * Before hydration there is no `onSubmit` attached,
+   * and Enter in the field would fall through to the
+   * browser's own GET: the signup is dropped in
+   * silence and the address lands in the URL, the
+   * history and every later `Referer`. A disabled
+   * submit button blocks implicit submission as well
+   * as clicks, so this one flag shuts both doors.
+   * Nothing is lost by it — the form has never worked
+   * without JavaScript, since without it the success
+   * card can never render.
+   */
+  const ready = useHydrated();
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -80,7 +94,11 @@ export function JoinBox() {
           onChange={(event) => setEmail(event.target.value)}
           className="input flex-1"
         />
-        <button type="submit" className="btn btn-primary" disabled={pending}>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={!ready || pending}
+        >
           Join waitlist
         </button>
       </form>
@@ -112,6 +130,23 @@ function SuccessCard({ row }: { row: WaitlistSignupResponse }) {
       <p className="text-[12.5px]/[1.55] text-neutral-600">{CARD_BODY}</p>
     </Blueprint>
   );
+}
+
+/**
+ * False in the server-rendered HTML and through
+ * hydration, true once React has taken the markup
+ * over. `useSyncExternalStore` is how React itself
+ * answers "which side am I on": it reads the server
+ * snapshot until hydration finishes and the client
+ * one after, from a store that never changes again —
+ * hence the subscribe that unsubscribes to nothing.
+ */
+const noSubscription = () => () => {};
+const onTheClient = () => true;
+const onTheServer = () => false;
+
+function useHydrated(): boolean {
+  return useSyncExternalStore(noSubscription, onTheClient, onTheServer);
 }
 
 function messageFrom(body: unknown): string {

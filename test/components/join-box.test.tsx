@@ -1,17 +1,27 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { hydrateRoot, type Root } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { JoinBox } from '@/app/join-box';
 import { stubFetch, type FetchStub } from '../helpers/fetch-stub.js';
 
 let fetchStub: FetchStub;
+let root: Root | null = null;
 
-afterEach(() => {
+afterEach(async () => {
   cleanup();
   fetchStub.restore();
+  // Unmounted here rather than in the test that
+  // hydrates, so a failed assertion still tears down.
+  if (root !== null) {
+    const mounted = root;
+    root = null;
+    await act(async () => mounted.unmount());
+  }
 });
 
 const row = {
@@ -44,6 +54,35 @@ describe('JoinBox', () => {
         'progress emails as features land · unsubscribe anytime',
       ),
     ).toBeVisible();
+  });
+
+  it('ships the submit button disabled and enables it on hydration', async () => {
+    // The server markup is exactly the DOM a visitor
+    // can reach before hydration: no onSubmit is
+    // attached yet, so an enabled submit button would
+    // let Enter fall through to the browser's own GET,
+    // dropping the signup and putting the address in
+    // the URL. Both halves are asserted against one
+    // button element, because a button that shipped
+    // disabled and stayed that way would be the worse
+    // bug of the two.
+    fetchStub = stubFetch();
+    // Detached on purpose: `screen` queries
+    // document.body, and a second copy of the form
+    // hanging off it would confuse every later test.
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(<JoinBox />);
+    const button = container.querySelector('button[type="submit"]');
+
+    expect(button).toBeDisabled();
+
+    root = await act(async () => hydrateRoot(container, <JoinBox />));
+
+    // Same node, not a replacement: React adopted the
+    // server's markup, so the enabling really is
+    // hydration and not a mismatched re-render.
+    expect(container.querySelector('button[type="submit"]')).toBe(button);
+    expect(button).toBeEnabled();
   });
 
   it('swaps the box for the success card on submit', async () => {
