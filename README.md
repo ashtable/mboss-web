@@ -48,6 +48,11 @@ submodules import their own siblings with a `.js` extension, which webpack
 can resolve to the `.ts` file and Turbopack cannot. `next.config.ts` says
 so at the setting that does it.
 
+The three scripts that run `next` also set `NEXT_TELEMETRY_DISABLED=1`,
+which opts Next.js out of phoning home. The Dockerfile sets it again as an
+image-wide `ENV`, because the container's entrypoint execs the `next`
+binary directly and never runs these scripts.
+
 The browser-driven suite is not here. It lives in `mboss-e2e-tests` and
 runs against the superproject's compose stack, because what it proves —
 that the design tokens resolve, that the copy is on the page, that a
