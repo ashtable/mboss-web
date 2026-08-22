@@ -29,7 +29,7 @@ function nextInvokingScripts(): [string, string][] {
     scripts: Record<string, string>;
   };
   return Object.entries(scripts).filter(([, command]) =>
-    /(?:^|\s)next(?:\s|$)/.test(command),
+    /(?:^|\s)(?:\S*\/)?next(?:\s|$)/.test(command),
   );
 }
 
@@ -48,10 +48,9 @@ describe('package.json scripts', () => {
 
 describe('Dockerfile', () => {
   it('disables telemetry before the first RUN', () => {
-    // Position is semantic: ENV only applies to
+    // Position is semantic: ENV applies only to
     // the instructions below it, so one placed
-    // after `RUN npm ci` would leave the install
-    // uncovered.
+    // under a RUN would not reach it.
     const lines = read('../Dockerfile').split('\n');
     const env = lines.findIndex((line) =>
       /^ENV\s+NEXT_TELEMETRY_DISABLED=1\s*$/.test(line),

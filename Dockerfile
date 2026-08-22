@@ -5,7 +5,8 @@ WORKDIR /app
 # Telemetry off image-wide, because the
 # entrypoint execs the `next` binary directly
 # and so never sees package.json's own prefix.
-# Above the install, so `npm ci` is covered too.
+# Above the build steps, since ENV applies only
+# below itself.
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # The nested submodules are consumed as raw
