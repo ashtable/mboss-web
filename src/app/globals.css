@@ -475,7 +475,15 @@
      written with the system's radii and fills, and
      this turns the whole set into square,
      transparent, hairline-bordered objects. A rule
-     moved below it silently stops applying. */
+     moved below it silently stops applying.
+
+     The system also names a segmented control and a
+     dialog, and their absence from this selector is
+     deliberate: no screen has either, and a rule for
+     a class no element carries outlives the reason it
+     was written. Whichever change first needs one
+     adds the class and extends this selector
+     together. */
 
   .card,
   .btn,
