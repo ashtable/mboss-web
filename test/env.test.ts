@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import { readEnv } from '@/env';
@@ -10,6 +12,32 @@ function messageFor(source: Record<string, string | undefined>): string {
     return (error as Error).message;
   }
   return '';
+}
+
+function readExample(): string {
+  return readFileSync(
+    fileURLToPath(new URL('../.env.example', import.meta.url)),
+    'utf8',
+  );
+}
+
+/**
+ * Enough of the dotenv format for a file we write
+ * ourselves: `KEY=value` lines, comments, blanks. No
+ * quoting or interpolation, because this file uses
+ * neither and a parser that guessed at them could
+ * disagree with the one that actually loads it.
+ */
+function parseDotenv(text: string): Record<string, string> {
+  const values: Record<string, string> = {};
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed === '' || trimmed.startsWith('#')) continue;
+    const separator = trimmed.indexOf('=');
+    if (separator === -1) continue;
+    values[trimmed.slice(0, separator)] = trimmed.slice(separator + 1);
+  }
+  return values;
 }
 
 describe('readEnv', () => {
@@ -119,6 +147,18 @@ describe('AUTH_SECRET in production', () => {
     // The whole point of the compose defaults is that
     // a clean checkout comes up without a .env.
     expect(readEnv(COMPLETE_ENV).AUTH_SECRET).toBe('dev-auth-secret');
+  });
+});
+
+describe('.env.example', () => {
+  it('boots the app on its own', () => {
+    // The file's whole purpose is `cp .env.example
+    // .env.local && npm run dev`, and the only thing
+    // that can prove it still works is the same
+    // parser the app boots with. A variable added to
+    // the schema and forgotten here turns a clean
+    // checkout into a crash on first run.
+    expect(() => readEnv(parseDotenv(readExample()))).not.toThrow();
   });
 });
 
