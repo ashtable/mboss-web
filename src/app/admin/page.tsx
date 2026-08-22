@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
 import { sessionAddress } from '@/auth/policy';
+import { Blueprint } from '@/components/blueprint';
 
 import { SignInButton } from './sign-in-button';
 
@@ -12,6 +13,13 @@ import { SignInButton } from './sign-in-button';
  * for staff. There is no site nav here on purpose:
  * this page is a door, not a destination, and the
  * one link out of it goes to the waitlist.
+ *
+ * The card is blueprint-framed, like the waitlist
+ * screens and unlike the console behind it: whoever
+ * is looking at this page is still anonymous, so it
+ * is a public surface reached from the public site,
+ * not an operational one. Written down because the
+ * frame's scope is a rule worth not re-arguing.
  */
 export const metadata: Metadata = {
   title: 'Admin sign-in',
@@ -23,7 +31,7 @@ export default async function AdminSignInPage() {
 
   return (
     <main className="grid place-items-center px-6 py-[44px] pb-[52px]">
-      <div className="w-full max-w-[400px] border border-divider bg-white px-[26px] py-[22px]">
+      <Blueprint className="w-full max-w-[400px] bg-white px-[26px] py-[22px]">
         <h2 className="text-[24px]">Admin sign-in</h2>
         <p className="mt-1 text-[12px] text-neutral-600">
           autoretryai.com staff only — for the waitlist console.
@@ -38,7 +46,7 @@ export default async function AdminSignInPage() {
           There is no user sign-in anywhere on mboss.dev — the waitlist is
           email-only. <Link href="/">Join it here</Link>.
         </p>
-      </div>
+      </Blueprint>
     </main>
   );
 }
