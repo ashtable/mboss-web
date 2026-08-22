@@ -1,0 +1,21 @@
+name: CI
+on: [pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # mboss-zod and mboss-core are nested here
+          # and are consumed as source.
+          submodules: recursive
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      # tsc cannot see a server-only import pulled
+      # into a client component, and the build can.
+      - run: npm run build

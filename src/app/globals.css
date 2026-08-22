@@ -1,0 +1,517 @@
+@import 'tailwindcss';
+
+/**
+ * The Industry design system: a light-only,
+ * wireframe-flavoured kit whose components are
+ * square, transparent and hairline-bordered, and
+ * whose waitlist-facing boxes carry four
+ * registration marks at their corners. There is
+ * deliberately no dark palette — the ground is
+ * always paper.
+ */
+
+@theme {
+  --color-bg: #f2f2f3;
+  --color-surface: #e9e9ea;
+  --color-text: #1d1f20;
+  --color-accent: #5980a6;
+  --color-accent-2: #728fab;
+  --color-divider: color-mix(in srgb, #1d1f20 16%, transparent);
+
+  /* Tonal ramps, generated on one shared lightness
+     scale so the same step of any role matches the
+     others in visual value. */
+  --color-neutral-100: #f5f5f8;
+  --color-neutral-200: #e7e7ea;
+  --color-neutral-300: #d4d4d7;
+  --color-neutral-400: #b7b7ba;
+  --color-neutral-500: #98989b;
+  --color-neutral-600: #7a7a7d;
+  --color-neutral-700: #5d5d60;
+  --color-neutral-800: #424244;
+  --color-neutral-900: #2b2b2d;
+
+  --color-accent-100: #eef6ff;
+  --color-accent-200: #d6ebff;
+  --color-accent-300: #b5d9fd;
+  --color-accent-400: #94bce3;
+  --color-accent-500: #749dc4;
+  --color-accent-600: #597ea3;
+  --color-accent-700: #416180;
+  --color-accent-800: #2c455d;
+  --color-accent-900: #1d2d3d;
+
+  --color-accent-2-100: #eef6ff;
+  --color-accent-2-200: #d6ebff;
+  --color-accent-2-300: #bdd8f2;
+  --color-accent-2-400: #9ebbd8;
+  --color-accent-2-500: #7e9cb8;
+  --color-accent-2-600: #627d98;
+  --color-accent-2-700: #486077;
+  --color-accent-2-800: #314457;
+  --color-accent-2-900: #1f2d3a;
+
+  /* next/font hashes the family name it generates,
+     so each face is named through the variable it
+     publishes on <html> and the design's own stack
+     stands behind it as the fallback. */
+  --font-heading:
+    var(--font-barlow-condensed), 'Barlow Condensed', system-ui, sans-serif;
+  --font-heading-weight: 600;
+  --font-body: var(--font-barlow), 'Barlow', system-ui, sans-serif;
+  --font-mono: ui-monospace, Menlo, monospace;
+
+  --space-1: 3.4px;
+  --space-2: 6.8px;
+  --space-3: 10.2px;
+  --space-4: 13.6px;
+  --space-6: 20.4px;
+  --space-8: 27.2px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 7px;
+
+  /* Elevation reads as ink pooling under the sheet
+     rather than as a glow. */
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2b2b2d 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2b2b2d 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #2b2b2d 22%, transparent);
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0 0 var(--space-2);
+  }
+  h1 {
+    font-size: 42px;
+  }
+  h2 {
+    font-size: 32px;
+  }
+  h3 {
+    font-size: 25px;
+  }
+  h4 {
+    font-size: 20px;
+  }
+  h5 {
+    font-size: 16px;
+  }
+  h6 {
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin: 0 0 var(--space-3);
+  }
+  a {
+    color: var(--color-accent);
+    text-underline-offset: 3px;
+  }
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  }
+}
+
+@layer components {
+  /* — the blueprint frame — */
+
+  /* Registration marks sit outside the box, so a
+     blueprint needs 6px of clear space around it
+     and an ancestor that does not clip. */
+  .blueprint {
+    position: relative;
+    border: 1px solid var(--color-divider);
+    border-radius: 0;
+  }
+  .blueprint > .corner {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    color: color-mix(in srgb, var(--color-text) 55%, transparent);
+  }
+  .blueprint > .corner::before,
+  .blueprint > .corner::after {
+    content: '';
+    position: absolute;
+    background: currentColor;
+  }
+  .blueprint > .corner::before {
+    left: 5px;
+    top: 0;
+    width: 1px;
+    height: 100%;
+  }
+  .blueprint > .corner::after {
+    top: 5px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+  }
+  .blueprint > .corner.tl {
+    top: -6px;
+    left: -6px;
+  }
+  .blueprint > .corner.tr {
+    top: -6px;
+    right: -6px;
+  }
+  .blueprint > .corner.bl {
+    bottom: -6px;
+    left: -6px;
+  }
+  .blueprint > .corner.br {
+    bottom: -6px;
+    right: -6px;
+  }
+
+  /* The plotting grid a workflow is drawn on. It
+     is the product's most recognisable surface, so
+     the marketing art and the console share one
+     definition of it. */
+  .canvas-grid {
+    background-color: var(--color-bg);
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--color-text) 10%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 18px 18px;
+  }
+
+  /* — text — */
+
+  .text-muted {
+    color: color-mix(in srgb, var(--color-text) 55%, transparent);
+  }
+
+  /* The small caps label the system sets section
+     headers, form legends and eyebrows in. It is
+     h6's smaller sibling; colour is set per use,
+     since the same label reads as accent on the
+     public pages and as neutral in a form. */
+  .eyebrow {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: 10.5px;
+    letter-spacing: 0.09em;
+    color: var(--color-neutral-600);
+  }
+
+  /* Dates, addresses and machine output are set in
+     the utility face wherever they appear. */
+  .mono {
+    font-family: var(--font-mono);
+  }
+
+  .hr {
+    height: 1px;
+    border: 0;
+    margin: var(--space-4) 0;
+    background: var(--color-divider);
+  }
+
+  /* — buttons — */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    /* 14px matches the .input's, since the pair sits
+       side by side in the sign-up row. */
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--color-text);
+    background: transparent;
+    border: 1px solid transparent;
+    padding: var(--space-2) calc(var(--space-3) * 1.2);
+    border-radius: var(--radius-md);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-accent-600);
+  }
+  .btn-primary:active:not(:disabled) {
+    background: var(--color-accent-700);
+  }
+  .btn-secondary {
+    border-color: var(--color-divider);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+  .btn-secondary:active:not(:disabled) {
+    background: color-mix(in srgb, var(--color-text) 14%, transparent);
+  }
+  .btn-ghost {
+    color: var(--color-accent);
+    padding-inline: var(--space-1);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+  .btn-ghost:active:not(:disabled) {
+    background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+  .btn-block {
+    width: 100%;
+    margin-top: var(--space-2);
+  }
+
+  /* — forms — */
+
+  .field > label {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 5px;
+    color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  }
+  .input {
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 10px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--color-text);
+    caret-color: var(--color-accent);
+    background: var(--color-surface);
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-md);
+  }
+  .input::placeholder {
+    color: var(--color-neutral-500);
+  }
+  .input:hover {
+    border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  }
+  .input:focus-visible {
+    border-color: var(--color-accent);
+    outline-offset: 0;
+  }
+  textarea.input {
+    min-height: 90px;
+    resize: vertical;
+  }
+
+  /* — cards — */
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+  /* A card spaces its children with the system's
+     gap, so the prose margin a paragraph or heading
+     carries elsewhere would double it. */
+  .card > :is(p, h1, h2, h3, h4, h5, h6) {
+    margin-bottom: 0;
+  }
+  .card-kicker {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  .card-title {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: 17px;
+    line-height: 1.2;
+  }
+  .card-body {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.8;
+    flex: 1;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: color-mix(in srgb, var(--color-text) 50%, transparent);
+  }
+  .elev-sm {
+    box-shadow: var(--shadow-sm);
+  }
+  .elev-md {
+    box-shadow: var(--shadow-md);
+  }
+  .elev-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* — tags — */
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    padding: 3px 10px;
+    border-radius: calc(var(--radius-md) * 0.75);
+  }
+  .tag-accent {
+    background: var(--color-accent-100);
+    color: var(--color-accent-800);
+  }
+  .tag-accent-2 {
+    background: var(--color-accent-2-100);
+    color: var(--color-accent-2-800);
+  }
+  .tag-neutral {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-800);
+  }
+  .tag-outline {
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  /* — navigation — */
+
+  /* The row wraps because the repo link is a single
+     unbreakable ~210px word and the nav is the first
+     thing on the page: unwrapped, it pushes the whole
+     document sideways on a phone. Wrapping keeps
+     every label rather than hiding one below a
+     breakpoint. The row gap is tighter than the
+     column gap so a wrapped line reads as the same
+     nav rather than a second one. */
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: none;
+  }
+  .nav-brand {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: 18px;
+    margin-right: auto;
+    color: var(--color-text);
+  }
+  /* Section links sit back so the current one, and
+     the brand, can come forward. */
+  .nav a {
+    color: color-mix(in srgb, var(--color-text) 62%, transparent);
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .nav a:hover,
+  .nav a[aria-current='page'] {
+    color: var(--color-accent);
+  }
+
+  /* — tables — */
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .table th {
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-text) 60%, transparent);
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .table td {
+    padding: var(--space-2);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-text) 8%, transparent);
+  }
+  .table tbody tr:hover {
+    background: color-mix(in srgb, var(--color-text) 4%, transparent);
+  }
+
+  /* — the wireframe override —
+     Last on purpose: the components above are
+     written with the system's radii and fills, and
+     this turns the whole set into square,
+     transparent, hairline-bordered objects. A rule
+     moved below it silently stops applying.
+
+     The system also names a segmented control and a
+     dialog, and their absence from this selector is
+     deliberate: no screen has either, and a rule for
+     a class no element carries outlives the reason it
+     was written. Whichever change first needs one
+     adds the class and extends this selector
+     together. */
+
+  .card,
+  .btn,
+  .input,
+  .tag {
+    border-radius: 0;
+  }
+  .card {
+    background: transparent;
+    border: 1px solid var(--color-divider);
+  }
+  .btn {
+    border: 1px solid var(--color-divider);
+  }
+  .btn-primary {
+    border-color: var(--color-accent);
+  }
+  .btn-ghost {
+    border-color: transparent;
+  }
+}
