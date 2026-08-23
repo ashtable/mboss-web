@@ -170,7 +170,53 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
+
+      <footer className="flex flex-col gap-3 border-t border-divider px-6 py-[18px] md:flex-row md:items-center md:justify-between md:px-10">
+        <div>
+          <div className="font-heading text-[15px] font-semibold text-text">
+            mBoss
+          </div>
+          <p className="mono mt-1 text-[10.5px] text-neutral-600">
+            Design durable apps with DBOS.
+          </p>
+          <p className="mono mt-2 text-[10px] text-neutral-500">
+            © 2026 mBoss · hello@mboss.dev
+          </p>
+        </div>
+        <nav
+          aria-label="Footer"
+          className="flex items-center gap-4 text-[12.5px]"
+        >
+          <FooterLink href="/docs">Docs</FooterLink>
+          <FooterLink href="/changelog">Changelog</FooterLink>
+          <FooterLink href="/admin">Admin</FooterLink>
+        </nav>
+      </footer>
     </>
+  );
+}
+
+/**
+ * The footer's own three links, not the header nav's
+ * Docs/Changelog: same destinations, but this is the
+ * quiet copy — Admin sits beside them, discoverable
+ * rather than called out, so the door is findable
+ * without being a headline.
+ */
+function FooterLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="text-neutral-600 no-underline hover:text-accent-700"
+    >
+      {children}
+    </Link>
   );
 }
 

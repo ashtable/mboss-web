@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { SignOutButton } from './sign-out-button';
+
 /**
  * The console's own nav. It is a client component
  * only so the current section can mark itself — the
@@ -36,6 +38,7 @@ export function AdminNav({ email }: { email: string }) {
         Compose
       </Link>
       <span className="mono ml-auto text-[11px] text-neutral-600">{email}</span>
+      <SignOutButton />
     </nav>
   );
 }
