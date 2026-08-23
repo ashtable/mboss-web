@@ -144,8 +144,11 @@ describe('AUTH_SECRET in production', () => {
   });
 
   it('leaves development with its readable default', () => {
-    // The whole point of the compose defaults is that
-    // a clean checkout comes up without a .env.
+    // dev-auth-secret is the readable default the
+    // whole local stack shares — .env.example, a
+    // developer's .env.local (which compose reads),
+    // and the e2e session minter. Production
+    // refuses it; development must not.
     expect(readEnv(COMPLETE_ENV).AUTH_SECRET).toBe('dev-auth-secret');
   });
 });
