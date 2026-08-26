@@ -78,12 +78,6 @@ const EnvSchema = z
     AUTH_MICROSOFT_ENTRA_ID_SECRET: z.string().min(1),
     AUTH_MICROSOFT_ENTRA_ID_ISSUER: issuerSchema,
     ADMIN_ALLOWED_DOMAIN: z.string().min(1).default('autoretryai.com'),
-
-    // The SendGrid event webhook is the one place
-    // this app crosses into the API's internal
-    // surface, so it holds both service tokens.
-    SENDGRID_WEBHOOK_PUBLIC_KEY: z.string().min(1),
-    INTERNAL_API_TOKEN: z.string().min(1),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;

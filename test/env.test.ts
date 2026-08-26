@@ -58,8 +58,6 @@ describe('readEnv', () => {
     expect(message).toContain('AUTH_SECRET');
     expect(message).toContain('AUTH_MICROSOFT_ENTRA_ID_ID');
     expect(message).toContain('AUTH_MICROSOFT_ENTRA_ID_SECRET');
-    expect(message).toContain('SENDGRID_WEBHOOK_PUBLIC_KEY');
-    expect(message).toContain('INTERNAL_API_TOKEN');
   });
 
   it('strips a trailing slash from API_BASE_URL', () => {
