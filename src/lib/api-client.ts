@@ -15,21 +15,6 @@ export async function callApi(
   return call(path, init, env.WEB_SERVICE_TOKEN);
 }
 
-/**
- * The API's internal surface, which takes the other
- * token. Only the SendGrid webhook forwards there,
- * and the two tokens are one typo apart, so the
- * difference is a named function rather than an
- * argument someone could pass the wrong value to.
- */
-export async function callInternalApi(
-  path: string,
-  init?: RequestInit,
-): Promise<Response> {
-  const env = serverEnv();
-  return call(path, init, env.INTERNAL_API_TOKEN);
-}
-
 async function call(
   path: string,
   init: RequestInit | undefined,
