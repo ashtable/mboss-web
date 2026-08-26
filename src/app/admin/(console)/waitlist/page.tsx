@@ -24,7 +24,7 @@ export const dynamic = 'force-dynamic';
 
 const FOOTER =
   'the list is an audience, not a queue — Compose update sends a ' +
-  'SendGrid broadcast. No invites, no accounts.';
+  'Twilio Email broadcast. No invites, no accounts.';
 
 export default async function AdminWaitlistPage({
   searchParams,
