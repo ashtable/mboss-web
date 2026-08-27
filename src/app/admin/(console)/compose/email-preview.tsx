@@ -54,7 +54,8 @@ export function EmailPreview({
           />
         </div>
         <div className="mono mt-2 text-center text-[8.5px] text-neutral-500">
-          sent via sendgrid · manage &amp; unsubscribe links added automatically
+          sent via twilio email · manage &amp; unsubscribe links added
+          automatically
         </div>
       </div>
       <p className="mt-2 text-[10px] text-neutral-600">
