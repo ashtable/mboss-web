@@ -11,5 +11,12 @@ set -e
 # and every probe fails while the log still says
 # the server is ready. Compose sets no PORT and
 # publishes 3000, which the default covers.
-exec ./node_modules/.bin/next dev --webpack \
+# `start` serves the build the image already
+# carries. It was `dev`, which cost the site its
+# hydration once it sat behind a proxy — see the
+# Dockerfile — and which sets NODE_ENV to
+# development, so src/env.ts's refusal to accept a
+# short or default AUTH_SECRET never fired in the
+# one place it exists to protect.
+exec ./node_modules/.bin/next start \
   --hostname 0.0.0.0 --port "${PORT:-3000}"

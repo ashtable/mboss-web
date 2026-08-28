@@ -53,5 +53,28 @@ RUN npm ci
 
 COPY . .
 
+# A production build, not a dev server. `next dev`
+# refuses cross-origin requests to its own
+# /_next/hmr, and behind a platform proxy the
+# browser's origin is the public domain while the
+# dev server still believes it is localhost — so
+# the refusal fires on every page load and
+# hydration never finishes. The HTML is perfect
+# and every handler is dead: the waitlist button
+# stays disabled and the manage page's buttons do
+# nothing. Nothing in the log says so, because
+# from the server's side each request succeeded.
+#
+# Building here rather than at start also means a
+# container start does no work that can fail, and
+# it is the only thing that typechecks every route
+# before the image ships. src/env.ts reads the
+# environment on first use precisely so this can
+# run with none of it set.
+#
+# --webpack for the same reason `dev` used it: see
+# next.config.ts on the `.js` extension aliases.
+RUN ./node_modules/.bin/next build --webpack
+
 EXPOSE 3000
 ENTRYPOINT ["./docker-entrypoint.sh"]
