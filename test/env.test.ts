@@ -120,12 +120,12 @@ describe('AUTH_SECRET in production', () => {
   const production = { ...COMPLETE_ENV, NODE_ENV: 'production' };
 
   it('refuses the published development default', () => {
-    // The default is committed here and in the e2e
-    // helper that mints an admin session cookie with
-    // it, so a deploy that inherits it hands the
-    // console to anyone who has read the repository.
-    // It works silently, which is why it has to fail
-    // at boot.
+    // The default is committed in .env.example, so a
+    // deploy that inherits it hands the console to
+    // anyone who has read the repository. It works
+    // silently, which is why it has to fail at boot.
+    // Note it is long enough to clear the length
+    // floor: only the equality check catches it.
     expect(messageFor(production)).toContain('AUTH_SECRET');
   });
 
@@ -142,12 +142,13 @@ describe('AUTH_SECRET in production', () => {
   });
 
   it('leaves development with its readable default', () => {
-    // dev-auth-secret is the readable default the
-    // whole local stack shares — .env.example, a
-    // developer's .env.local (which compose reads),
-    // and the e2e session minter. Production
+    // The readable default is what the whole local
+    // stack shares — .env.example and a developer's
+    // .env.local, which compose reads. Production
     // refuses it; development must not.
-    expect(readEnv(COMPLETE_ENV).AUTH_SECRET).toBe('dev-auth-secret');
+    expect(readEnv(COMPLETE_ENV).AUTH_SECRET).toBe(
+      'dev-auth-secret-not-for-production-use',
+    );
   });
 });
 
@@ -160,6 +161,26 @@ describe('.env.example', () => {
     // the schema and forgotten here turns a clean
     // checkout into a crash on first run.
     expect(() => readEnv(parseDotenv(readExample()))).not.toThrow();
+  });
+
+  it('ships an AUTH_SECRET production refuses', () => {
+    // The two rules above pull in opposite
+    // directions: the file must boot the app as
+    // copied, which under a production build means
+    // clearing the 32-character floor — and clearing
+    // that floor is exactly what would let a
+    // published secret through. Only the equality
+    // check against DEV_AUTH_SECRET separates them,
+    // so this asserts the file and that constant
+    // still name the same string. Editing one alone
+    // would quietly publish a working production
+    // secret.
+    const example = parseDotenv(readExample());
+    const message = messageFor({
+      ...example,
+      NODE_ENV: 'production',
+    });
+    expect(message).toContain('AUTH_SECRET');
   });
 });
 

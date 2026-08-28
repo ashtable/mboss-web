@@ -33,16 +33,23 @@ const issuerSchema = z
   );
 
 /**
- * The development secret is committed here, in
- * .env.example, and in the e2e helper that mints an
- * admin session cookie with it. A deploy that
- * inherits it hands the console to anyone who has
- * read this repository — and unlike the Entra
- * placeholders, which fail at Microsoft the moment
- * the button is clicked, it works. Boot is the only
- * place left to catch it.
+ * The development secret is committed here and in
+ * .env.example. A deploy that inherits it hands the
+ * console to anyone who has read this repository —
+ * and unlike the Entra placeholders, which fail at
+ * Microsoft the moment the button is clicked, it
+ * works. Boot is the only place left to catch it.
+ *
+ * It is padded past the length floor below on
+ * purpose. .env.example has to boot the app as
+ * copied, a test enforces that, and the container
+ * serves a production build — so a short default
+ * would make the file unusable in the one stack
+ * that reads it. Length is not what disqualifies
+ * this string; being published is, and the equality
+ * check below is what says so.
  */
-const DEV_AUTH_SECRET = 'dev-auth-secret';
+const DEV_AUTH_SECRET = 'dev-auth-secret-not-for-production-use';
 
 function productionSecretProblem(secret: string): string | null {
   if (secret === DEV_AUTH_SECRET) {
